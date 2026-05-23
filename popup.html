@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Reply Assistant</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 380px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: #0f1419;
+      background: #fff;
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #efefef;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 5px;
+      color: #737373;
+    }
+
+    input[type="password"],
+    textarea {
+      width: 100%;
+      border: 1px solid #dbdbdb;
+      border-radius: 6px;
+      padding: 9px 10px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+      color: #0f1419;
+    }
+
+    input[type="password"] {
+      font-family: monospace;
+      letter-spacing: 0.05em;
+    }
+
+    input[type="password"]:focus,
+    textarea:focus {
+      border-color: #0095f6;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 130px;
+      line-height: 1.5;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #0095f6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 2px;
+    }
+
+    button:hover { background: #1877f2; }
+    button:active { background: #0060c0; }
+
+    #status {
+      margin-top: 10px;
+      font-size: 12px;
+      text-align: center;
+      min-height: 16px;
+      font-weight: 500;
+    }
+
+    .success { color: #00ba7c; }
+    .error   { color: #ed4956; }
+  </style>
+</head>
+<body>
+  <h1>Instagram Reply Assistant</h1>
+
+  <div class="field">
+    <label for="apiKey">Gemini APIキー</label>
+    <input
+      type="password"
+      id="apiKey"
+      placeholder="AIza..."
+      autocomplete="off"
+      spellcheck="false"
+    >
+  </div>
+
+  <div class="field">
+    <label for="customPrompt">プロンプトテンプレート</label>
+    <textarea id="customPrompt" spellcheck="false"></textarea>
+  </div>
+
+  <button id="save">保存</button>
+  <div id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
