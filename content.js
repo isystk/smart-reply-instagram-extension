@@ -5,6 +5,9 @@ const TEXTAREA_SELECTORS = [
   'textarea[aria-label="コメントを追加…"]',
   'textarea[placeholder*="コメント"]',
   'form[method="POST"] textarea',
+  'div[contenteditable="true"][aria-placeholder="コメントを追加…"]',
+  'div[contenteditable="true"][aria-label="コメントを追加…"]',
+  'div[data-lexical-editor="true"]',
 ];
 const AI_BTN_CLASS = 'instagram-smart-reply-ai-btn';
 let isGenerating = false;
@@ -21,6 +24,15 @@ function getTextareaFromContext(el) {
       const ta = form.querySelector(sel);
       if (ta && isVisible(ta)) return ta;
     }
+  }
+  const scope =
+    el.closest('[role="dialog"]') ||
+    el.closest('article') ||
+    el.closest('main') ||
+    document.body;
+  for (const sel of TEXTAREA_SELECTORS) {
+    const ta = scope.querySelector(sel);
+    if (ta && isVisible(ta)) return ta;
   }
   return null;
 }
@@ -66,12 +78,20 @@ function getPostText(textarea) {
 
 function findToolbarContainer(textarea) {
   const form = textarea.closest('form');
-  if (!form) return null;
-
-  // Use the LAST role="button" (submit), not the first (emoji)
-  const buttons = form.querySelectorAll('[role="button"]');
-  if (buttons.length > 0) {
-    return buttons[buttons.length - 1].parentElement;
+  if (form) {
+    const buttons = form.querySelectorAll('[role="button"]');
+    if (buttons.length > 0) {
+      return buttons[buttons.length - 1].parentElement;
+    }
+  }
+  if (textarea.contentEditable === 'true') {
+    const row = textarea.parentElement?.parentElement;
+    if (row) {
+      const last = row.lastElementChild;
+      if (last && last !== textarea.parentElement) return last;
+      return row;
+    }
+    return textarea.parentElement;
   }
   return null;
 }
@@ -79,7 +99,14 @@ function findToolbarContainer(textarea) {
 function insertTextIntoTextarea(text, textarea) {
   textarea.focus();
 
-  // Approach 1: ClipboardEvent paste (most compatible with React)
+  if (textarea.contentEditable === 'true') {
+    document.execCommand('selectAll', false, null);
+    document.execCommand('insertText', false, text);
+    textarea.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    textarea.focus();
+    return;
+  }
+
   const dt = new DataTransfer();
   dt.setData('text/plain', text);
   textarea.dispatchEvent(new ClipboardEvent('paste', {
@@ -88,7 +115,6 @@ function insertTextIntoTextarea(text, textarea) {
     clipboardData: dt,
   }));
 
-  // If paste didn't update the value, use native setter + InputEvent
   if (!textarea.value || textarea.value !== text) {
     const nativeSetter = Object.getOwnPropertyDescriptor(
       window.HTMLTextAreaElement.prototype,
